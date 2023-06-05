@@ -1,4 +1,4 @@
-package ru.yandex.tonychem.interpalsviewbooster;
+package ru.yandex.tonychem.interpalsviewbooster.login;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -8,8 +8,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class UIMain extends Application {
+public class LoginUIMain extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loginWindowLoader = new FXMLLoader(getClass().getResource("login-window.fxml"));
