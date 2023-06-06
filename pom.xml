@@ -63,7 +63,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                ru.yandex.tonychem.interpalsviewbooster/ru.yandex.tonychem.interpalsviewbooster.login.LoginUIMain
+                                ru.yandex.tonychem.interpalsviewbooster/ru.yandex.tonychem.interpalsviewbooster.login.LoginUI
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public interface CrawlEngine {
+    String cookies();
     void authorize(String username, String password) throws IncorrectCredentialsException, IOException;
     Set<Account> gatherAccounts(UserSearchQuery userSearchQuery);
 }

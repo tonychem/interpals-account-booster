@@ -71,6 +71,11 @@ public class BasicCrawlEngine implements CrawlEngine {
         return null;
     }
 
+    @Override
+    public String cookies() {
+        return cookies;
+    }
+
     private String prepareCookie(HttpResponse<String> initialResponse) {
         String interpalsSessid = null;
         String __ubic1 = null;

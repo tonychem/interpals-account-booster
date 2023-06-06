@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class LoginUIMain extends Application {
+public class LoginUI extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loginWindowLoader = new FXMLLoader(getClass().getResource("login-window.fxml"));
