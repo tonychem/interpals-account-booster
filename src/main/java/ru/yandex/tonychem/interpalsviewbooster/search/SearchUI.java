@@ -5,15 +5,25 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import ru.yandex.tonychem.interpalsviewbooster.login.LoginController;
 
 import java.io.IOException;
 
 public class SearchUI {
-    public static void renderOn(Stage stage) throws IOException {
+    public static void renderWindow() {
         FXMLLoader searchWindowLoader = new FXMLLoader(SearchUI.class.getResource("search-window.fxml"));
-        Parent searchWindowRoot = searchWindowLoader.load();
+
+        Parent searchWindowRoot = null;
+
+        try {
+            searchWindowRoot = searchWindowLoader.load();
+        } catch (IOException e) {
+            throw new RuntimeException("SearchUI has encountered error while loading nodes");
+        }
+
         Scene searchScene = new Scene(searchWindowRoot, 887.0, 400.0);
 
+        Stage stage = new Stage();
         stage.setTitle("Interpals booster");
         stage.setResizable(false);
 

@@ -13,6 +13,7 @@ import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.exceptions.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.search.SearchUI;
+import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -52,22 +53,14 @@ public class LoginController implements Initializable {
 
         try {
             engine.authorize(login, password);
-            proceedToSearchStage(event);
+            AppUtils.closeWindow(event);
         } catch (IncorrectCredentialsException e) {
             incorrectCredentialsLabel.setVisible(true);
         } catch (IOException e) {
             connectionErrorLabel.setVisible(true);
         }
-    }
 
-    private void proceedToSearchStage(ActionEvent event) {
-        Stage currentStage = (Stage) (((Node) (event.getSource())).getScene().getWindow());
-
-        try {
-            SearchUI.renderOn(currentStage);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        SearchUI.renderWindow();
     }
 
     private void resetInvisibleNodes() {
