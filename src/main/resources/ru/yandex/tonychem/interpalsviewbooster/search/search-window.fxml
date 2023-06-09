@@ -29,7 +29,7 @@
       </MenuBar>
       <AnchorPane fx:id="queryPane" layoutY="28.0" prefHeight="343.0" prefWidth="416.0">
          <children>
-            <Button fx:id="initiateBoostButton" layoutX="112.0" layoutY="305.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="178.0" text="Boost up my account!">
+            <Button fx:id="initiateBoostButton" layoutX="112.0" layoutY="305.0" mnemonicParsing="false" onAction="#initiateSearch" prefHeight="28.0" prefWidth="178.0" text="Boost up my account!">
                <font>
                   <Font name="Verdana" size="14.0" />
                </font>
@@ -82,7 +82,7 @@
                   <Font name="Verdana" size="14.0" />
                </font>
             </CheckBox>
-            <CheckBox fx:id="visitPreviouslyViewedButton" layoutX="159.0" layoutY="208.0" mnemonicParsing="false" selected="true" text="Visit previously viewed accounts">
+            <CheckBox fx:id="visitPreviouslyViewedCheckBox" layoutX="159.0" layoutY="208.0" mnemonicParsing="false" selected="true" text="Visit previously viewed accounts">
                <font>
                   <Font name="Verdana" size="14.0" />
                </font>

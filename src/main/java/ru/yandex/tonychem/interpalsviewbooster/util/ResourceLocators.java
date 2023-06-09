@@ -7,9 +7,16 @@ public enum ResourceLocators {
     SEARCH("https://www.interpals.net/app/search?");
 
     private final String url;
+
     ResourceLocators(String url) {
         this.url = url;
     }
 
-    public URI uri() {return URI.create(url);}
+    public URI uri() {
+        return URI.create(url);
+    }
+
+    public String url() {
+        return url;
+    }
 }

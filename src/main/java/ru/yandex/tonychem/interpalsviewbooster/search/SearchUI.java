@@ -5,7 +5,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import ru.yandex.tonychem.interpalsviewbooster.login.LoginController;
 
 import java.io.IOException;
 

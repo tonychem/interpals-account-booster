@@ -3,7 +3,7 @@ package ru.yandex.tonychem.interpalsviewbooster.util;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.stage.Stage;
-import ru.yandex.tonychem.interpalsviewbooster.engine.Country;
+import ru.yandex.tonychem.interpalsviewbooster.engine.model.Country;
 import ru.yandex.tonychem.interpalsviewbooster.search.SearchUI;
 
 import java.io.BufferedReader;

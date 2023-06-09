@@ -1,12 +1,16 @@
 package ru.yandex.tonychem.interpalsviewbooster.engine;
 
 import ru.yandex.tonychem.interpalsviewbooster.engine.exceptions.IncorrectCredentialsException;
+import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
+import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 import ru.yandex.tonychem.interpalsviewbooster.util.ResourceLocators;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,7 +72,44 @@ public class BasicCrawlEngine implements CrawlEngine {
 
     @Override
     public Set<Account> gatherAccounts(UserSearchQuery userSearchQuery) {
-        return null;
+        String baseSearchUrl = prepareBaseSearchUrl(userSearchQuery);
+        Set<Account> accounts = new HashSet<>(100);
+
+        Set<Account> accountsFoundOnSearchPage;
+        int offset = 0;
+
+        do {
+            URI searchUrl = URI.create(baseSearchUrl + "&offset=" + offset);
+
+            HttpRequest searchResultPageRequest =
+                    HttpRequest.newBuilder()
+                            .uri(searchUrl)
+                            .header("user-agent", userAgent)
+                            .header("referer", "https://www.interpals.net")
+                            .header("cookie", cookies)
+                            .header("content-type", "application/x-www-form-urlencoded")
+                            .build();
+
+            try {
+                HttpResponse<String> searchResponse = client.send(searchResultPageRequest,
+                        HttpResponse.BodyHandlers.ofString());
+                Thread.sleep(230);
+                accountsFoundOnSearchPage = extractAccountNames(searchResponse);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            accounts.addAll(accountsFoundOnSearchPage);
+            offset += 10;
+
+        } while (accountsFoundOnSearchPage.size() != 0);
+
+        return accounts;
+    }
+
+    @Override
+    public void crawl() {
+
     }
 
     @Override
@@ -116,5 +157,34 @@ public class BasicCrawlEngine implements CrawlEngine {
         }
 
         return csrfToken;
+    }
+
+    private Set<Account> extractAccountNames(HttpResponse<String> searchResultResponse) {
+        final String usernamePattern = "<a class=\"sResThumb\" href=\"/(.+?)\\?";
+
+        Set<Account> matches = new HashSet<>();
+        Pattern p = Pattern.compile(usernamePattern);
+        Matcher m = p.matcher(searchResultResponse.body());
+
+        while (m.find()) {
+            matches.add(new Account(m.group(1)));
+        }
+
+        return matches;
+    }
+
+    private String prepareBaseSearchUrl(UserSearchQuery userSearchQuery) {
+        StringBuilder searchUrl = new StringBuilder(ResourceLocators.SEARCH.url());
+
+        searchUrl.append("&age1=" + userSearchQuery.ageStart());
+        searchUrl.append("&age2=" + userSearchQuery.ageEnd());
+        searchUrl.append("&countries%5B%5D=" + userSearchQuery.country().alphaCode());
+        searchUrl.append("&sex%5B%5D=" + userSearchQuery.sex().getDenotation());
+
+        if (userSearchQuery.onlineOnly()) {
+            searchUrl.append("&online=1");
+        }
+
+        return searchUrl.toString();
     }
 }
