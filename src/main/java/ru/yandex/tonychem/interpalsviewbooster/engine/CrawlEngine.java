@@ -5,6 +5,7 @@ import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 
 public interface CrawlEngine {
@@ -14,5 +15,5 @@ public interface CrawlEngine {
 
     Set<Account> gatherAccounts(UserSearchQuery userSearchQuery);
 
-    void crawl();
+    void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery);
 }

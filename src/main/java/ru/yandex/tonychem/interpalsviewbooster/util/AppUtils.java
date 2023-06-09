@@ -3,6 +3,7 @@ package ru.yandex.tonychem.interpalsviewbooster.util;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.stage.Stage;
+import ru.yandex.tonychem.interpalsviewbooster.InterpalsBoosterApplication;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Country;
 import ru.yandex.tonychem.interpalsviewbooster.search.SearchUI;
 
@@ -34,5 +35,22 @@ public class AppUtils {
         }
 
         return countries;
+    }
+
+    public static List<String> readUserAgents() {
+        List<String> userAgentList = new ArrayList<>(247);
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                        InterpalsBoosterApplication.class.getResourceAsStream("user-agent.datafile")
+                ))) {
+            while (reader.ready()) {
+                userAgentList.add(reader.readLine());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error opening user-agent datafile");
+        }
+
+        return userAgentList;
     }
 }

@@ -68,6 +68,12 @@ public class SearchController implements Initializable {
 
 
     public void initiateSearch(ActionEvent event) {
+        UserSearchQuery userSearchQuery = readFields();
+        Set<Account> accountsToBeVisited = engine.gatherAccounts(userSearchQuery);
+        engine.crawl(accountsToBeVisited, userSearchQuery);
+    }
+
+    private UserSearchQuery readFields() {
         int ageStart = ageFromChoiceBox.getValue();
         int ageEnd = ageToChoiceBox.getValue();
         Country country = countryChoiceBox.getValue();
@@ -83,9 +89,7 @@ public class SearchController implements Initializable {
             sex = Sex.FEMALE;
         }
 
-        Set<Account> accountsToBeVisited = engine.gatherAccounts(new UserSearchQuery(ageStart, ageEnd, sex, country,
-                onlineOnly, visitPreviouslyViewedAccounts, requestDelay));
-
-
+        return new UserSearchQuery(ageStart, ageEnd, sex, country,
+                onlineOnly, visitPreviouslyViewedAccounts, requestDelay);
     }
 }

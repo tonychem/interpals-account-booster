@@ -1,15 +1,18 @@
 package ru.yandex.tonychem.interpalsviewbooster.engine;
 
+import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
 import ru.yandex.tonychem.interpalsviewbooster.engine.exceptions.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 import ru.yandex.tonychem.interpalsviewbooster.util.ResourceLocators;
+import ru.yandex.tonychem.interpalsviewbooster.util.UserAgentFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -18,14 +21,14 @@ import java.util.regex.Pattern;
 public class BasicCrawlEngine implements CrawlEngine {
 
     private final HttpClient client;
-    private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-            "(KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
+    private final UserAgentFactory userAgentFactory;
     private final String badCredentialsFlag = "If you have an account, please sign in below";
 
     private String cookies;
 
     public BasicCrawlEngine() {
         this.client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+        this.userAgentFactory = new UserAgentFactory();
     }
 
     @Override
@@ -52,7 +55,7 @@ public class BasicCrawlEngine implements CrawlEngine {
 
             HttpRequest loginRequest = HttpRequest.newBuilder()
                     .uri(ResourceLocators.AUTH.uri())
-                    .header("user-agent", userAgent)
+                    .header("user-agent", userAgentFactory.getAgent())
                     .header("referer", "https://www.interpals.net")
                     .header("cookie", cookies)
                     .header("content-type", "application/x-www-form-urlencoded")
@@ -84,7 +87,7 @@ public class BasicCrawlEngine implements CrawlEngine {
             HttpRequest searchResultPageRequest =
                     HttpRequest.newBuilder()
                             .uri(searchUrl)
-                            .header("user-agent", userAgent)
+                            .header("user-agent", userAgentFactory.getAgent())
                             .header("referer", "https://www.interpals.net")
                             .header("cookie", cookies)
                             .header("content-type", "application/x-www-form-urlencoded")
@@ -93,7 +96,6 @@ public class BasicCrawlEngine implements CrawlEngine {
             try {
                 HttpResponse<String> searchResponse = client.send(searchResultPageRequest,
                         HttpResponse.BodyHandlers.ofString());
-                Thread.sleep(230);
                 accountsFoundOnSearchPage = extractAccountNames(searchResponse);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
@@ -108,8 +110,23 @@ public class BasicCrawlEngine implements CrawlEngine {
     }
 
     @Override
-    public void crawl() {
+    public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery) {
+        for (Account account : accounts) {
+            HttpRequest userVisitRequest = HttpRequest.newBuilder()
+                    .uri(ResourceLocators.MAIN.uri().resolve(account.username()))
+                    .header("user-agent", userAgentFactory.getAgent())
+                    .header("referer", "https://www.interpals.net")
+                    .header("cookie", cookies)
+                    .header("content-type", "application/x-www-form-urlencoded")
+                    .build();
 
+            try {
+                HttpResponse<String> response = client.send(userVisitRequest, HttpResponse.BodyHandlers.ofString());
+                Thread.sleep(userSearchQuery.requestDelay());
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

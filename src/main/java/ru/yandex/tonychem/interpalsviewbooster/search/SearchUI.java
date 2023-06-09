@@ -5,6 +5,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import ru.yandex.tonychem.interpalsviewbooster.InterpalsBoosterApplication;
 
 import java.io.IOException;
 
@@ -26,7 +27,7 @@ public class SearchUI {
         stage.setTitle("Interpals booster");
         stage.setResizable(false);
 
-        Image icon = new Image(SearchUI.class.getResource("penpals.jpg").toExternalForm());
+        Image icon = new Image(InterpalsBoosterApplication.class.getResource("logo.jpg").toExternalForm());
         stage.getIcons().add(icon);
 
         stage.setScene(searchScene);
