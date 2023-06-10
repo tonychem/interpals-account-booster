@@ -1,13 +1,17 @@
 package ru.yandex.tonychem.interpalsviewbooster.search;
 
+import javafx.animation.FadeTransition;
 import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
-import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
+import ru.yandex.tonychem.interpalsviewbooster.engine.ScrapeAndVisitTask;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Country;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Sex;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
@@ -16,12 +20,16 @@ import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 public class SearchController implements Initializable {
 
     private CrawlEngine engine = BeansHolder.engine();
+    private ExecutorService executorService = BeansHolder.executorService();
+
+    private FadeTransition fadeBackgroundWhileScrapingTransition;
 
     @FXML
     private ComboBox<Integer> ageFromChoiceBox;
@@ -45,7 +53,10 @@ public class SearchController implements Initializable {
     private CheckBox visitPreviouslyViewedCheckBox;
 
     @FXML
-    private RadioButton bothSexButton, maleSexButton, femaleSexButton;
+    private RadioButton maleSexButton, femaleSexButton;
+
+    @FXML
+    private AnchorPane queryPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -68,12 +79,22 @@ public class SearchController implements Initializable {
 
 
     public void initiateSearch(ActionEvent event) {
-        UserSearchQuery userSearchQuery = readFields();
-        Set<Account> accountsToBeVisited = engine.gatherAccounts(userSearchQuery);
-        engine.crawl(accountsToBeVisited, userSearchQuery);
+        UserSearchQuery userSearchQuery = readUIFields();
+        queryPane.setOpacity(0.23d);
+        queryPane.setCursor(Cursor.WAIT);
+
+        AtomicReference<Double> visitedAccountsProgress = new AtomicReference<>(0.0d);
+        Task<Void> scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, visitedAccountsProgress);
+
+        scrapeAndVisitTask.setOnSucceeded(successEvent -> {
+            queryPane.setOpacity(1.0d);
+            queryPane.setCursor(Cursor.DEFAULT);
+        });
+
+        executorService.submit(scrapeAndVisitTask);
     }
 
-    private UserSearchQuery readFields() {
+    private UserSearchQuery readUIFields() {
         int ageStart = ageFromChoiceBox.getValue();
         int ageEnd = ageToChoiceBox.getValue();
         Country country = countryChoiceBox.getValue();

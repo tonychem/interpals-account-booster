@@ -1,7 +1,6 @@
 package ru.yandex.tonychem.interpalsviewbooster.engine;
 
-import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
-import ru.yandex.tonychem.interpalsviewbooster.engine.exceptions.IncorrectCredentialsException;
+import ru.yandex.tonychem.interpalsviewbooster.engine.exception.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 import ru.yandex.tonychem.interpalsviewbooster.util.ResourceLocators;
@@ -15,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,7 +74,7 @@ public class BasicCrawlEngine implements CrawlEngine {
     }
 
     @Override
-    public Set<Account> gatherAccounts(UserSearchQuery userSearchQuery) {
+    public Set<Account> gatherAccounts(UserSearchQuery userSearchQuery, AtomicReference<Double> progressCallBack) {
         String baseSearchUrl = prepareBaseSearchUrl(userSearchQuery);
         Set<Account> accounts = new HashSet<>(100);
 
@@ -110,7 +110,17 @@ public class BasicCrawlEngine implements CrawlEngine {
     }
 
     @Override
-    public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery) {
+    public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery,
+                      AtomicReference<Double> progressCallBack) {
+        int totalSize = accounts.size();
+
+        if (totalSize == 0) {
+            progressCallBack.set(1.0d);
+            return;
+        }
+
+        double actuallyVisited = 0.0d;
+
         for (Account account : accounts) {
             HttpRequest userVisitRequest = HttpRequest.newBuilder()
                     .uri(ResourceLocators.MAIN.uri().resolve(account.username()))
@@ -123,6 +133,10 @@ public class BasicCrawlEngine implements CrawlEngine {
             try {
                 HttpResponse<String> response = client.send(userVisitRequest, HttpResponse.BodyHandlers.ofString());
                 Thread.sleep(userSearchQuery.requestDelay());
+
+                actuallyVisited++;
+                progressCallBack.set(actuallyVisited / totalSize);
+
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }

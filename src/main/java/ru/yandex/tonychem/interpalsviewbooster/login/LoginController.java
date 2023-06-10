@@ -1,5 +1,6 @@
 package ru.yandex.tonychem.interpalsviewbooster.login;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,7 +10,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
-import ru.yandex.tonychem.interpalsviewbooster.engine.exceptions.IncorrectCredentialsException;
+import ru.yandex.tonychem.interpalsviewbooster.engine.exception.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.search.SearchUI;
 import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
@@ -58,7 +59,7 @@ public class LoginController implements Initializable {
             connectionErrorLabel.setVisible(true);
         }
 
-        SearchUI.renderWindow();
+        Platform.runLater(SearchUI::renderWindow);
     }
 
     private void resetInvisibleNodes() {
