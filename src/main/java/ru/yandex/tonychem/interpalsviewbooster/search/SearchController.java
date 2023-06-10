@@ -21,6 +21,7 @@ import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
@@ -30,7 +31,9 @@ public class SearchController implements Initializable {
     private CrawlEngine engine = BeansHolder.engine();
     private ExecutorService executorService = BeansHolder.executorService();
 
-    private Task<Void> scrapeAndVisitTask, progressBarUpdateTask;
+    private volatile ConcurrentLinkedQueue<Object> consoleLoggingQueue = new ConcurrentLinkedQueue<>();
+
+    private Task<Void> scrapeAndVisitTask, progressBarUpdateTask, consoleUpdateTask;
 
     @FXML
     private ComboBox<Integer> ageFromChoiceBox, ageToChoiceBox;
@@ -51,13 +54,16 @@ public class SearchController implements Initializable {
     private RadioButton maleSexButton, femaleSexButton;
 
     @FXML
-    private AnchorPane queryPane, searchAndCancelButtonPane;
+    private AnchorPane queryPane;
 
     @FXML
     private ProgressBar scrapeIndicator;
 
     @FXML
     private Button initiateBoostButton, cancelBoostButton;
+
+    @FXML
+    private TextArea consoleArea;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -92,8 +98,10 @@ public class SearchController implements Initializable {
 
         AtomicReference<Double> visitedAccountsProgress = new AtomicReference<>(0.0d);
 
-        scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, visitedAccountsProgress);
+        scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, visitedAccountsProgress,
+                consoleLoggingQueue);
         progressBarUpdateTask = new ProgressBarUpdateTask(scrapeIndicator, visitedAccountsProgress);
+        consoleUpdateTask = new ConsoleUpdateTask(consoleArea, consoleLoggingQueue);
 
         EventHandler<WorkerStateEvent> doneOrCanceledSearchPaneHandler = (stateEvent) -> {
             queryPane.setOpacity(1.0d);
@@ -113,6 +121,7 @@ public class SearchController implements Initializable {
         progressBarUpdateTask.setOnSucceeded(doneOrCanceledFooterPaneHandler);
         progressBarUpdateTask.setOnCancelled(doneOrCanceledFooterPaneHandler);
 
+        executorService.submit(consoleUpdateTask);
         executorService.submit(progressBarUpdateTask);
         executorService.submit(scrapeAndVisitTask);
     }
@@ -120,6 +129,7 @@ public class SearchController implements Initializable {
     public void cancelSearch(ActionEvent event) {
         scrapeAndVisitTask.cancel(true);
         progressBarUpdateTask.cancel(true);
+        consoleUpdateTask.cancel(true);
     }
 
     private UserSearchQuery readUIFields() {

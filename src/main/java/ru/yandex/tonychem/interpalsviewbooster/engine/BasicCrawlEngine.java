@@ -3,6 +3,7 @@ package ru.yandex.tonychem.interpalsviewbooster.engine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.exception.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
+import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 import ru.yandex.tonychem.interpalsviewbooster.util.ResourceLocators;
 import ru.yandex.tonychem.interpalsviewbooster.util.UserAgentFactory;
 
@@ -14,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +24,11 @@ public class BasicCrawlEngine implements CrawlEngine {
 
     private final HttpClient client;
     private final UserAgentFactory userAgentFactory;
-    private final String badCredentialsFlag = "If you have an account, please sign in below";
+    private final String badCredentialsFlag = AppUtils.BAD_CREDENTIALS_FLAG;
+
+    private final String denialResponse = AppUtils.DENIAL_SERVER_RESPONSE;
+
+    private final int denialWaitMillis = AppUtils.DENIAL_WAIT;
 
     private String cookies;
 
@@ -111,10 +117,11 @@ public class BasicCrawlEngine implements CrawlEngine {
 
     @Override
     public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery,
-                      AtomicReference<Double> progressCallBack) {
+                      AtomicReference<Double> progressCallBack, ConcurrentLinkedQueue<Object> loggingQueue) {
         int totalSize = accounts.size();
 
         if (totalSize == 0) {
+            loggingQueue.offer("No users satisfy the request");
             progressCallBack.set(1.0d);
             return;
         }
@@ -132,13 +139,22 @@ public class BasicCrawlEngine implements CrawlEngine {
 
             try {
                 HttpResponse<String> response = client.send(userVisitRequest, HttpResponse.BodyHandlers.ofString());
-                Thread.sleep(userSearchQuery.requestDelay());
+
+                if (requestDenied(response)) {
+                    loggingQueue.offer(AppUtils.DENIAL_CLIENT_RESPONSE);
+                    Thread.sleep(denialWaitMillis);
+                } else {
+                    Thread.sleep(userSearchQuery.requestDelay());
+                }
 
                 actuallyVisited++;
                 progressCallBack.set(actuallyVisited / totalSize);
+                loggingQueue.offer(account);
 
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
+            } finally {
+                loggingQueue.offer(AppUtils.CONSOLE_POISON_PILL);
             }
         }
     }
@@ -217,5 +233,12 @@ public class BasicCrawlEngine implements CrawlEngine {
         }
 
         return searchUrl.toString();
+    }
+
+    private boolean requestDenied(HttpResponse<String> response) {
+        if (response.body().contains(denialResponse)) {
+            return true;
+        }
+        return false;
     }
 }

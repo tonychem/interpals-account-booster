@@ -15,6 +15,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class AppUtils {
+
+    public static final String CONSOLE_POISON_PILL = "POISON_PILL";
+    public static final String BAD_CREDENTIALS_FLAG = "If you have an account, please sign in below";
+    public static final String DENIAL_SERVER_RESPONSE =
+            "You have been visiting too many profiles in a short period of time.";
+
+    public static final String DENIAL_CLIENT_RESPONSE = "Account has been put on hold " +
+            "due to too many requests. Please wait 30 s before next attempt";
+
+    public static final int DENIAL_WAIT = 30_000;
+
     public static void closeWindow(Event event) {
         Stage currentStage = (Stage) (((Node) (event.getSource())).getScene().getWindow());
         currentStage.close();
