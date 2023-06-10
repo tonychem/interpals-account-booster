@@ -1,9 +1,10 @@
 package ru.yandex.tonychem.interpalsviewbooster.search;
 
-import javafx.animation.FadeTransition;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -29,13 +30,10 @@ public class SearchController implements Initializable {
     private CrawlEngine engine = BeansHolder.engine();
     private ExecutorService executorService = BeansHolder.executorService();
 
-    private FadeTransition fadeBackgroundWhileScrapingTransition;
+    private Task<Void> scrapeAndVisitTask, progressBarUpdateTask;
 
     @FXML
-    private ComboBox<Integer> ageFromChoiceBox;
-
-    @FXML
-    private ComboBox<Integer> ageToChoiceBox;
+    private ComboBox<Integer> ageFromChoiceBox, ageToChoiceBox;
 
     @FXML
     private ComboBox<Country> countryChoiceBox;
@@ -44,19 +42,22 @@ public class SearchController implements Initializable {
     private Slider delaySlider;
 
     @FXML
-    private Label dynamicDelayLabel;
+    private Label dynamicDelayLabel, crawlProfilesLabel;
 
     @FXML
-    private CheckBox onlineCheckBox;
-
-    @FXML
-    private CheckBox visitPreviouslyViewedCheckBox;
+    private CheckBox onlineCheckBox, visitPreviouslyViewedCheckBox;
 
     @FXML
     private RadioButton maleSexButton, femaleSexButton;
 
     @FXML
-    private AnchorPane queryPane;
+    private AnchorPane queryPane, searchAndCancelButtonPane;
+
+    @FXML
+    private ProgressBar scrapeIndicator;
+
+    @FXML
+    private Button initiateBoostButton, cancelBoostButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -80,18 +81,45 @@ public class SearchController implements Initializable {
 
     public void initiateSearch(ActionEvent event) {
         UserSearchQuery userSearchQuery = readUIFields();
+
         queryPane.setOpacity(0.23d);
         queryPane.setCursor(Cursor.WAIT);
+        initiateBoostButton.setVisible(false);
+
+        cancelBoostButton.setVisible(true);
+        scrapeIndicator.setVisible(true);
+        crawlProfilesLabel.setVisible(true);
 
         AtomicReference<Double> visitedAccountsProgress = new AtomicReference<>(0.0d);
-        Task<Void> scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, visitedAccountsProgress);
 
-        scrapeAndVisitTask.setOnSucceeded(successEvent -> {
+        scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, visitedAccountsProgress);
+        progressBarUpdateTask = new ProgressBarUpdateTask(scrapeIndicator, visitedAccountsProgress);
+
+        EventHandler<WorkerStateEvent> doneOrCanceledSearchPaneHandler = (stateEvent) -> {
             queryPane.setOpacity(1.0d);
             queryPane.setCursor(Cursor.DEFAULT);
-        });
+            cancelBoostButton.setVisible(false);
+            initiateBoostButton.setVisible(true);
+        };
 
+        scrapeAndVisitTask.setOnSucceeded(doneOrCanceledSearchPaneHandler);
+        scrapeAndVisitTask.setOnCancelled(doneOrCanceledSearchPaneHandler);
+
+        EventHandler<WorkerStateEvent> doneOrCanceledFooterPaneHandler = (stateEvent) -> {
+            crawlProfilesLabel.setVisible(false);
+            scrapeIndicator.setVisible(false);
+        };
+
+        progressBarUpdateTask.setOnSucceeded(doneOrCanceledFooterPaneHandler);
+        progressBarUpdateTask.setOnCancelled(doneOrCanceledFooterPaneHandler);
+
+        executorService.submit(progressBarUpdateTask);
         executorService.submit(scrapeAndVisitTask);
+    }
+
+    public void cancelSearch(ActionEvent event) {
+        scrapeAndVisitTask.cancel(true);
+        progressBarUpdateTask.cancel(true);
     }
 
     private UserSearchQuery readUIFields() {
