@@ -131,6 +131,7 @@ public class BasicCrawlEngine implements CrawlEngine {
 
         if (totalSize == 0) {
             loggingQueue.offer("No users satisfy the request");
+            loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
             progressCallBack.set(1.0d);
             return;
         }

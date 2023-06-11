@@ -10,9 +10,9 @@
 
 <Pane fx:id="aboutWindowPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="235.0" prefWidth="372.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.yandex.tonychem.interpalsviewbooster.about.AboutController">
    <children>
-      <Hyperlink fx:id="githubLink" layoutX="155.0" layoutY="211.0" onAction="#openGitHub" text="Anatoly S.">
+      <Hyperlink fx:id="githubLink" layoutX="200.0" layoutY="211.0" onAction="#openGitHub" text="github" textAlignment="CENTER">
          <font>
-            <Font size="10.0" />
+            <Font name="Verdana" size="10.0" />
          </font>
       </Hyperlink>
       <Separator layoutY="207.0" prefHeight="4.0" prefWidth="372.0" />
@@ -30,7 +30,7 @@
             </ImageView>
          </children>
       </Pane>
-      <Label fx:id="thirdPartLabel" layoutX="40.0" layoutY="157.0" prefHeight="27.0" prefWidth="303.0" text="Interpals View Booster users are solely responsible for account security." textAlignment="JUSTIFY" wrapText="true">
+      <Label fx:id="thirdPartLabel" layoutX="40.0" layoutY="157.0" prefHeight="27.0" prefWidth="303.0" text="Interpals View Booster users take full responsibility for undesirable effects of any kind." textAlignment="JUSTIFY" wrapText="true">
          <font>
             <Font name="Verdana" size="10.0" />
          </font>
@@ -41,6 +41,11 @@
          </font>
       </Label>
       <Label fx:id="fourthPartLabel" layoutX="40.0" layoutY="181.0" prefHeight="27.0" prefWidth="303.0" text="All logos belong to their respective owners." textAlignment="JUSTIFY" wrapText="true">
+         <font>
+            <Font name="Verdana" size="10.0" />
+         </font>
+      </Label>
+      <Label fx:id="authorLabel" layoutX="125.0" layoutY="213.0" text="By Anatoly S.">
          <font>
             <Font name="Verdana" size="10.0" />
          </font>

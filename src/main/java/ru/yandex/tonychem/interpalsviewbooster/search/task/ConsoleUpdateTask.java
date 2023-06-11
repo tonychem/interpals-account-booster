@@ -11,8 +11,6 @@ public class ConsoleUpdateTask extends Task<Void> {
     private final TextArea textArea;
     private volatile ConcurrentLinkedQueue<Object> logQueue;
 
-    private final int pollingRateDelay = 150;
-
     public ConsoleUpdateTask(TextArea textArea, ConcurrentLinkedQueue<Object> logQueue) {
         this.textArea = textArea;
         this.logQueue = logQueue;
@@ -23,8 +21,6 @@ public class ConsoleUpdateTask extends Task<Void> {
         Thread.currentThread().setName("Worker-console-updater");
 
         while (true) {
-            Thread.sleep(pollingRateDelay);
-
             Object message = logQueue.poll();
             if (message != null) {
 

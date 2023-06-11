@@ -16,16 +16,10 @@ public class BeansHolder {
     private static final Map<String, Set<Account>> visitedAccountsMap = AppUtils.loadVisitedAccounts();
     private static final CrawlEngine ENGINE = new BasicCrawlEngine();
 
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(4);
-
     public static CacheManager sessionCacheManager = null;
 
     public static CrawlEngine engine() {
         return ENGINE;
-    }
-
-    public static ExecutorService executorService() {
-        return EXECUTOR_SERVICE;
     }
 
     public static Map<String, Set<Account>> cache() {

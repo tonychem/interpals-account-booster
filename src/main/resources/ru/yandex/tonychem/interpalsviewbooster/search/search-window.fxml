@@ -105,13 +105,13 @@
                   <Font name="Verdana" size="14.0" />
                </font>
             </Label>
-            <Slider fx:id="delaySlider" blockIncrement="1000.0" layoutX="209.0" layoutY="253.0" majorTickUnit="1000.0" max="3000.0" min="200.0" minorTickCount="5" prefHeight="38.0" prefWidth="198.0" showTickMarks="true" value="800.0" />
+            <Slider fx:id="delaySlider" blockIncrement="1000.0" layoutX="209.0" layoutY="253.0" majorTickUnit="1000.0" max="3000.0" min="200.0" minorTickCount="5" prefHeight="38.0" prefWidth="198.0" showTickMarks="true" value="1500.0" />
             <Label fx:id="delayRequestsLabel" alignment="BASELINE_CENTER" contentDisplay="CENTER" layoutX="16.0" layoutY="237.0" prefHeight="38.0" prefWidth="178.0" text="Delay between requests" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS">
                <font>
                   <Font name="Verdana" size="14.0" />
                </font>
             </Label>
-            <Label fx:id="dynamicDelayLabel" alignment="CENTER" layoutX="58.0" layoutY="269.0" prefHeight="18.0" prefWidth="90.0" text="800 ms">
+            <Label fx:id="dynamicDelayLabel" alignment="CENTER" layoutX="58.0" layoutY="269.0" prefHeight="18.0" prefWidth="90.0" text="1500 ms">
                <font>
                   <Font name="Verdana" size="14.0" />
                </font>
@@ -134,12 +134,12 @@
       <Separator fx:id="horizontalSeparator" layoutY="369.0" prefHeight="7.0" prefWidth="887.0" />
       <AnchorPane fx:id="searchAndCancelButtonPane" layoutY="319.0" prefHeight="52.0" prefWidth="416.0">
          <children>
-            <Button fx:id="initiateBoostButton" layoutX="119.0" layoutY="12.0" mnemonicParsing="false" onAction="#initiateSearch" prefHeight="28.0" prefWidth="178.0" text="Boost up my account!">
+            <Button fx:id="initiateBoostButton" layoutX="119.0" layoutY="12.0" mnemonicParsing="false" onAction="#initiateSearch" prefHeight="28.0" prefWidth="178.0" text="Boost up">
                <font>
                   <Font name="Verdana" size="14.0" />
                </font>
             </Button>
-            <Button fx:id="cancelBoostButton" layoutX="119.0" layoutY="12.0" mnemonicParsing="false" onAction="#cancelSearch" prefHeight="28.0" prefWidth="178.0" text="Cancel" visible="false">
+            <Button fx:id="cancelBoostButton" layoutX="119.0" layoutY="12.0" mnemonicParsing="false" onAction="#terminateSearch" prefHeight="28.0" prefWidth="178.0" text="Cancel" visible="false">
                <font>
                   <Font name="Verdana" size="14.0" />
                </font>

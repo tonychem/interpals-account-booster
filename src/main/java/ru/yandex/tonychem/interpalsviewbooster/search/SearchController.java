@@ -29,13 +29,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 public class SearchController implements Initializable {
 
     private CrawlEngine engine = BeansHolder.engine();
-    private ExecutorService executorService = BeansHolder.executorService();
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     private volatile ConcurrentLinkedQueue<Object> consoleLoggingQueue = new ConcurrentLinkedQueue<>();
 
@@ -97,15 +98,12 @@ public class SearchController implements Initializable {
 
 
     public void initiateSearch(ActionEvent event) {
+        executorService.shutdownNow();
+        executorService = Executors.newCachedThreadPool();
+
         UserSearchQuery userSearchQuery = readUIFields();
 
-        queryPane.setOpacity(0.23d);
-        queryPane.setCursor(Cursor.WAIT);
-        initiateBoostButton.setVisible(false);
-
-        cancelBoostButton.setVisible(true);
-        scrapeIndicator.setVisible(true);
-        crawlProfilesLabel.setVisible(true);
+        setPaneToWaitingState();
 
         AtomicReference<Double> visitedAccountsProgress = new AtomicReference<>(0.0d);
 
@@ -114,27 +112,67 @@ public class SearchController implements Initializable {
         progressBarUpdateTask = new ProgressBarUpdateTask(scrapeIndicator, visitedAccountsProgress);
         consoleUpdateTask = new ConsoleUpdateTask(consoleArea, consoleLoggingQueue);
 
-        EventHandler<WorkerStateEvent> doneOrCanceledSearchPaneHandler = (stateEvent) -> {
+        EventHandler<WorkerStateEvent> doneScrapeAndVisitTaskHandler = (stateEvent) -> {
             queryPane.setOpacity(1.0d);
             queryPane.setCursor(Cursor.DEFAULT);
             cancelBoostButton.setVisible(false);
             initiateBoostButton.setVisible(true);
         };
 
-        scrapeAndVisitTask.setOnSucceeded(doneOrCanceledSearchPaneHandler);
-        scrapeAndVisitTask.setOnCancelled(doneOrCanceledSearchPaneHandler);
+        EventHandler<WorkerStateEvent> canceledScrapeAndVisitTaskHandler = (stateEvent) -> {
+            queryPane.setOpacity(1.0d);
+            queryPane.setCursor(Cursor.DEFAULT);
+            cancelBoostButton.setVisible(false);
+            initiateBoostButton.setVisible(true);
 
-        EventHandler<WorkerStateEvent> doneOrCanceledFooterPaneHandler = (stateEvent) -> {
+            cacheManager.flush();
+        };
+
+        scrapeAndVisitTask.setOnSucceeded(doneScrapeAndVisitTaskHandler);
+        scrapeAndVisitTask.setOnCancelled(canceledScrapeAndVisitTaskHandler);
+
+        EventHandler<WorkerStateEvent> doneProgressBarTaskHandler = (stateEvent) -> {
             crawlProfilesLabel.setVisible(false);
             scrapeIndicator.setVisible(false);
         };
 
-        progressBarUpdateTask.setOnSucceeded(doneOrCanceledFooterPaneHandler);
-        progressBarUpdateTask.setOnCancelled(doneOrCanceledFooterPaneHandler);
+        EventHandler<WorkerStateEvent> canceledProgressBarTaskHandler = (stateEvent) -> {
+            crawlProfilesLabel.setVisible(false);
+            scrapeIndicator.setVisible(false);
+            visitedAccountsProgress.set(1.0d);
+        };
+
+        progressBarUpdateTask.setOnSucceeded(doneProgressBarTaskHandler);
+        progressBarUpdateTask.setOnCancelled(canceledProgressBarTaskHandler);
 
         executorService.submit(consoleUpdateTask);
         executorService.submit(progressBarUpdateTask);
         executorService.submit(scrapeAndVisitTask);
+        executorService.shutdown();
+    }
+
+    public void terminateSearch(ActionEvent actionEvent) {
+        if (scrapeAndVisitTask != null) {
+            scrapeAndVisitTask.cancel(true);
+        }
+
+        if (progressBarUpdateTask != null) {
+            progressBarUpdateTask.cancel(true);
+        }
+
+        if (!executorService.isTerminated()) {
+            executorService.shutdownNow();
+        }
+    }
+
+    private void setPaneToWaitingState() {
+        queryPane.setOpacity(0.23d);
+        queryPane.setCursor(Cursor.WAIT);
+        initiateBoostButton.setVisible(false);
+
+        cancelBoostButton.setVisible(true);
+        scrapeIndicator.setVisible(true);
+        crawlProfilesLabel.setVisible(true);
     }
 
     public void exit(ActionEvent event) {
@@ -149,15 +187,11 @@ public class SearchController implements Initializable {
         }
     }
 
-    public void cancelSearch(ActionEvent event) {
-        scrapeAndVisitTask.cancel(true);
-        progressBarUpdateTask.cancel(true);
-        consoleUpdateTask.cancel(true);
-    }
-
     public void clearCache(ActionEvent event) {
-        cacheManager.deleteCache();
-        cacheManager.flush();
+        if (scrapeAndVisitTask == null || !scrapeAndVisitTask.isRunning()) {
+            cacheManager.deleteCache();
+            cacheManager.flush();
+        }
     }
 
     public void aboutMenu(ActionEvent event) {

@@ -53,15 +53,16 @@ public class LoginController implements Initializable {
 
         try {
             engine.authorize(login, password);
-
-            BeansHolder.sessionCacheManager = new CacheManager(login);
-            AppUtils.closeWindow(event);
         } catch (IncorrectCredentialsException e) {
             incorrectCredentialsLabel.setVisible(true);
+            return;
         } catch (IOException e) {
             connectionErrorLabel.setVisible(true);
+            return;
         }
 
+        BeansHolder.sessionCacheManager = new CacheManager(login);
+        AppUtils.closeWindow(event);
         Platform.runLater(SearchUI::renderWindow);
     }
 
