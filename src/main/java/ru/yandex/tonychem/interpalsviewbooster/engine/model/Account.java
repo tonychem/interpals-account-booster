@@ -1,4 +1,6 @@
 package ru.yandex.tonychem.interpalsviewbooster.engine.model;
 
-public record Account(String username) {
+import java.io.Serializable;
+
+public record Account(String username) implements Serializable {
 }

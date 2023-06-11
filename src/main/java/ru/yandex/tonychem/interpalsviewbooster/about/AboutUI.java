@@ -1,13 +1,11 @@
 package ru.yandex.tonychem.interpalsviewbooster.about;
 
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import ru.yandex.tonychem.interpalsviewbooster.InterpalsBoosterApplication;
-import ru.yandex.tonychem.interpalsviewbooster.search.SearchUI;
 
 import java.io.IOException;
 

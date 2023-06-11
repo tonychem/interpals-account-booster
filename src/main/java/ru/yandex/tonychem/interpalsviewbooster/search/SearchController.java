@@ -10,18 +10,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-import ru.yandex.tonychem.interpalsviewbooster.InterpalsBoosterApplication;
 import ru.yandex.tonychem.interpalsviewbooster.about.AboutUI;
-import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
+import ru.yandex.tonychem.interpalsviewbooster.beans.BeansHolder;
+import ru.yandex.tonychem.interpalsviewbooster.engine.CacheManager;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.ScrapeAndVisitTask;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Country;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Sex;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
+import ru.yandex.tonychem.interpalsviewbooster.search.task.ConsoleUpdateTask;
+import ru.yandex.tonychem.interpalsviewbooster.search.task.ProgressBarUpdateTask;
 import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
 import java.net.URL;
@@ -38,6 +38,8 @@ public class SearchController implements Initializable {
     private ExecutorService executorService = BeansHolder.executorService();
 
     private volatile ConcurrentLinkedQueue<Object> consoleLoggingQueue = new ConcurrentLinkedQueue<>();
+
+    private CacheManager cacheManager = BeansHolder.sessionCacheManager;
 
     private Task<Void> scrapeAndVisitTask, progressBarUpdateTask, consoleUpdateTask;
 
@@ -107,7 +109,7 @@ public class SearchController implements Initializable {
 
         AtomicReference<Double> visitedAccountsProgress = new AtomicReference<>(0.0d);
 
-        scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, visitedAccountsProgress,
+        scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, cacheManager, visitedAccountsProgress,
                 consoleLoggingQueue);
         progressBarUpdateTask = new ProgressBarUpdateTask(scrapeIndicator, visitedAccountsProgress);
         consoleUpdateTask = new ConsoleUpdateTask(consoleArea, consoleLoggingQueue);
@@ -136,18 +138,12 @@ public class SearchController implements Initializable {
     }
 
     public void exit(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-        Stage alertStage = ((Stage) (alert.getDialogPane().getScene().getWindow()));
-        Image alertIcon = new Image(InterpalsBoosterApplication.class.getResourceAsStream("logo.png"));
-        alertStage.getIcons().add(alertIcon);
-
-        alert.setTitle("Exit");
-        alert.setHeaderText("You are closing the application");
-        alert.setContentText("Are you sure you want to exit?");
+        Alert alert = AppUtils.alert();
 
         if (alert.showAndWait().get() == ButtonType.OK) {
+            cacheManager.flush();
             AppUtils.closeWindow(mainWindowPane);
+            System.exit(0);
         } else {
             event.consume();
         }
@@ -160,7 +156,8 @@ public class SearchController implements Initializable {
     }
 
     public void clearCache(ActionEvent event) {
-
+        cacheManager.deleteCache();
+        cacheManager.flush();
     }
 
     public void aboutMenu(ActionEvent event) {

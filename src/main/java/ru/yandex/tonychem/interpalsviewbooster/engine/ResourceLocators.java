@@ -1,4 +1,4 @@
-package ru.yandex.tonychem.interpalsviewbooster.util;
+package ru.yandex.tonychem.interpalsviewbooster.engine;
 
 import java.net.URI;
 

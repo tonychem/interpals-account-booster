@@ -1,4 +1,6 @@
-package ru.yandex.tonychem.interpalsviewbooster.util;
+package ru.yandex.tonychem.interpalsviewbooster.engine;
+
+import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
 import java.util.List;
 import java.util.Random;

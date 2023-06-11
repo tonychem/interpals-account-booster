@@ -16,7 +16,7 @@
          </font>
       </Hyperlink>
       <Separator layoutY="207.0" prefHeight="4.0" prefWidth="372.0" />
-      <Label fx:id="firstPartLabel" layoutX="40.0" layoutY="49.0" prefHeight="57.0" prefWidth="303.0" text="Interpals View Booster is an easy-to-use application to increase you page views on Interpals. This boost is achieved by sending continuous http requests to pages that satisfy the query." textAlignment="JUSTIFY" wrapText="true">
+      <Label fx:id="firstPartLabel" layoutX="40.0" layoutY="49.0" prefHeight="57.0" prefWidth="303.0" text="Interpals View Booster is an easy-to-use application to increase your page views on Interpals. This boost is achieved by sending continuous http requests to pages that satisfy the query." textAlignment="JUSTIFY" wrapText="true">
          <font>
             <Font name="Verdana" size="10.0" />
          </font>

@@ -17,6 +17,6 @@ public interface CrawlEngine {
 
     Set<Account> gatherAccounts(UserSearchQuery userSearchQuery, AtomicReference<Double> progressCallBack);
 
-    void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery,
+    void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery, CacheManager cacheManager,
                AtomicReference<Double> progressCallBack, ConcurrentLinkedQueue<Object> loggingQueue);
 }

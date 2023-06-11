@@ -1,11 +1,13 @@
-package ru.yandex.tonychem.interpalsviewbooster.engine;
+package ru.yandex.tonychem.interpalsviewbooster.engine.impl;
 
+import ru.yandex.tonychem.interpalsviewbooster.engine.CacheManager;
+import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
+import ru.yandex.tonychem.interpalsviewbooster.engine.ResourceLocators;
+import ru.yandex.tonychem.interpalsviewbooster.engine.UserAgentFactory;
 import ru.yandex.tonychem.interpalsviewbooster.engine.exception.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
-import ru.yandex.tonychem.interpalsviewbooster.util.ResourceLocators;
-import ru.yandex.tonychem.interpalsviewbooster.util.UserAgentFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -116,8 +118,15 @@ public class BasicCrawlEngine implements CrawlEngine {
     }
 
     @Override
-    public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery,
+    public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery, CacheManager cacheManager,
                       AtomicReference<Double> progressCallBack, ConcurrentLinkedQueue<Object> loggingQueue) {
+        if (!userSearchQuery.visitPreviouslyViewedAccounts()) {
+            Set<Account> previouslyViewedAccounts = cacheManager.getSeen();
+            if (previouslyViewedAccounts != null) {
+                accounts.removeAll(cacheManager.getSeen());
+            }
+        }
+
         int totalSize = accounts.size();
 
         if (totalSize == 0) {
@@ -149,13 +158,17 @@ public class BasicCrawlEngine implements CrawlEngine {
 
                 actuallyVisited++;
                 progressCallBack.set(actuallyVisited / totalSize);
+
+                cacheManager.markSeen(account);
                 loggingQueue.offer(account);
 
             } catch (IOException | InterruptedException e) {
+                cacheManager.flush();
                 loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
                 throw new RuntimeException(e);
             }
         }
+        cacheManager.flush();
         loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
     }
 

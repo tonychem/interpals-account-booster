@@ -1,4 +1,4 @@
-package ru.yandex.tonychem.interpalsviewbooster.search;
+package ru.yandex.tonychem.interpalsviewbooster.search.task;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
@@ -16,6 +16,8 @@ public class ProgressBarUpdateTask extends Task<Void> {
 
     @Override
     protected Void call() throws Exception {
+        Thread.currentThread().setName("Worker-progress-bar-updater");
+
         double epsilon = 1.0E-6;
 
         while (Math.abs(progress.get() - 1.0d) > epsilon) {

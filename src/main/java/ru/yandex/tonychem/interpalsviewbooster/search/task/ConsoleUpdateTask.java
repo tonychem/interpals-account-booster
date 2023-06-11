@@ -1,4 +1,4 @@
-package ru.yandex.tonychem.interpalsviewbooster.search;
+package ru.yandex.tonychem.interpalsviewbooster.search.task;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
@@ -20,6 +20,8 @@ public class ConsoleUpdateTask extends Task<Void> {
 
     @Override
     protected Void call() throws Exception {
+        Thread.currentThread().setName("Worker-console-updater");
+
         while (true) {
             Thread.sleep(pollingRateDelay);
 

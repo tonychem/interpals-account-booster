@@ -8,7 +8,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
+import ru.yandex.tonychem.interpalsviewbooster.beans.BeansHolder;
+import ru.yandex.tonychem.interpalsviewbooster.engine.CacheManager;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.exception.IncorrectCredentialsException;
 import ru.yandex.tonychem.interpalsviewbooster.search.SearchUI;
@@ -52,6 +53,8 @@ public class LoginController implements Initializable {
 
         try {
             engine.authorize(login, password);
+
+            BeansHolder.sessionCacheManager = new CacheManager(login);
             AppUtils.closeWindow(event);
         } catch (IncorrectCredentialsException e) {
             incorrectCredentialsLabel.setVisible(true);

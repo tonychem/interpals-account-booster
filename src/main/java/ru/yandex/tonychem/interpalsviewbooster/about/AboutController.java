@@ -1,19 +1,12 @@
 package ru.yandex.tonychem.interpalsviewbooster.about;
 
-import javafx.application.HostServices;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.Hyperlink;
 
 import java.io.IOException;
 
 
 public class AboutController {
-
     private final String githubURL = "https://github.com/tonychem";
-
-    @FXML
-    private Hyperlink githubLink;
 
     public void openGitHub(ActionEvent event) {
         Runtime runtime = Runtime.getRuntime();
