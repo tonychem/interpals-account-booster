@@ -16,7 +16,7 @@ import java.util.List;
 
 public class AppUtils {
 
-    public static final String CONSOLE_POISON_PILL = "POISON_PILL";
+    public static final String QUEUE_POISON_PILL = "POISON_PILL";
     public static final String BAD_CREDENTIALS_FLAG = "If you have an account, please sign in below";
     public static final String DENIAL_SERVER_RESPONSE =
             "You have been visiting too many profiles in a short period of time.";
@@ -28,6 +28,11 @@ public class AppUtils {
 
     public static void closeWindow(Event event) {
         Stage currentStage = (Stage) (((Node) (event.getSource())).getScene().getWindow());
+        currentStage.close();
+    }
+
+    public static void closeWindow(Node node) {
+        Stage currentStage = (Stage) node.getScene().getWindow();
         currentStage.close();
     }
 

@@ -152,11 +152,11 @@ public class BasicCrawlEngine implements CrawlEngine {
                 loggingQueue.offer(account);
 
             } catch (IOException | InterruptedException e) {
-                loggingQueue.offer(AppUtils.CONSOLE_POISON_PILL);
+                loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
                 throw new RuntimeException(e);
             }
         }
-        loggingQueue.offer(AppUtils.CONSOLE_POISON_PILL);
+        loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
     }
 
     @Override

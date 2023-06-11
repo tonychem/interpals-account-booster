@@ -24,10 +24,10 @@ public class SearchUI {
         Scene searchScene = new Scene(searchWindowRoot, 887.0, 400.0);
 
         Stage stage = new Stage();
-        stage.setTitle("Interpals booster");
+        stage.setTitle("Interpals View Booster");
         stage.setResizable(false);
 
-        Image icon = new Image(InterpalsBoosterApplication.class.getResource("logo.jpg").toExternalForm());
+        Image icon = new Image(InterpalsBoosterApplication.class.getResourceAsStream("logo.png"));
         stage.getIcons().add(icon);
 
         stage.setScene(searchScene);

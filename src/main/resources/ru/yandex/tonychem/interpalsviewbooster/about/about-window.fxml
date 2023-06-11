@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="aboutWindowPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="235.0" prefWidth="372.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.yandex.tonychem.interpalsviewbooster.about.AboutController">
+   <children>
+      <Hyperlink fx:id="githubLink" layoutX="155.0" layoutY="211.0" onAction="#openGitHub" text="Anatoly S.">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Hyperlink>
+      <Separator layoutY="207.0" prefHeight="4.0" prefWidth="372.0" />
+      <Label fx:id="firstPartLabel" layoutX="40.0" layoutY="49.0" prefHeight="57.0" prefWidth="303.0" text="Interpals View Booster is an easy-to-use application to increase you page views on Interpals. This boost is achieved by sending continuous http requests to pages that satisfy the query." textAlignment="JUSTIFY" wrapText="true">
+         <font>
+            <Font name="Verdana" size="10.0" />
+         </font>
+      </Label>
+      <Pane layoutX="110.0" layoutY="10.0" prefHeight="38.0" prefWidth="145.0" style="-fx-background-color: #0096FF;">
+         <children>
+            <ImageView fx:id="newLogoImageView" fitHeight="33.0" fitWidth="127.0" layoutX="10.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@newlogo.png" />
+               </image>
+            </ImageView>
+         </children>
+      </Pane>
+      <Label fx:id="thirdPartLabel" layoutX="40.0" layoutY="157.0" prefHeight="27.0" prefWidth="303.0" text="Interpals View Booster users are solely responsible for account security." textAlignment="JUSTIFY" wrapText="true">
+         <font>
+            <Font name="Verdana" size="10.0" />
+         </font>
+      </Label>
+      <Label fx:id="secondPartLabel" layoutX="40.0" layoutY="105.0" prefHeight="50.0" prefWidth="303.0" text="Interpals may temporarily put user's account on hold when request frequency is high. Account suspension may be avoided by increasing the interval between requests and the application allows for this option." textAlignment="JUSTIFY" wrapText="true">
+         <font>
+            <Font name="Verdana" size="10.0" />
+         </font>
+      </Label>
+      <Label fx:id="fourthPartLabel" layoutX="40.0" layoutY="181.0" prefHeight="27.0" prefWidth="303.0" text="All logos belong to their respective owners." textAlignment="JUSTIFY" wrapText="true">
+         <font>
+            <Font name="Verdana" size="10.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>

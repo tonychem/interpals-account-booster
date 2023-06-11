@@ -1,5 +1,6 @@
 package ru.yandex.tonychem.interpalsviewbooster.search;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -9,7 +10,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import ru.yandex.tonychem.interpalsviewbooster.InterpalsBoosterApplication;
+import ru.yandex.tonychem.interpalsviewbooster.about.AboutUI;
 import ru.yandex.tonychem.interpalsviewbooster.configuration.BeansHolder;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.ScrapeAndVisitTask;
@@ -55,6 +61,9 @@ public class SearchController implements Initializable {
 
     @FXML
     private AnchorPane queryPane;
+
+    @FXML
+    private Pane mainWindowPane;
 
     @FXML
     private ProgressBar scrapeIndicator;
@@ -126,10 +135,36 @@ public class SearchController implements Initializable {
         executorService.submit(scrapeAndVisitTask);
     }
 
+    public void exit(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+        Stage alertStage = ((Stage) (alert.getDialogPane().getScene().getWindow()));
+        Image alertIcon = new Image(InterpalsBoosterApplication.class.getResourceAsStream("logo.png"));
+        alertStage.getIcons().add(alertIcon);
+
+        alert.setTitle("Exit");
+        alert.setHeaderText("You are closing the application");
+        alert.setContentText("Are you sure you want to exit?");
+
+        if (alert.showAndWait().get() == ButtonType.OK) {
+            AppUtils.closeWindow(mainWindowPane);
+        } else {
+            event.consume();
+        }
+    }
+
     public void cancelSearch(ActionEvent event) {
         scrapeAndVisitTask.cancel(true);
         progressBarUpdateTask.cancel(true);
         consoleUpdateTask.cancel(true);
+    }
+
+    public void clearCache(ActionEvent event) {
+
+    }
+
+    public void aboutMenu(ActionEvent event) {
+        Platform.runLater(AboutUI::renderWindow);
     }
 
     private UserSearchQuery readUIFields() {

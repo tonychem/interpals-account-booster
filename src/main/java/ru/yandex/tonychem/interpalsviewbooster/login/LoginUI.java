@@ -17,10 +17,10 @@ public class LoginUI extends Application {
         Parent loginWindowRoot = loginWindowLoader.load();
         Scene loginScene = new Scene(loginWindowRoot, 343.0, 326.0);
 
-        stage.setTitle("Interpals booster");
+        stage.setTitle("Interpals View Booster");
         stage.setResizable(false);
 
-        Image icon = new Image(InterpalsBoosterApplication.class.getResource("logo.jpg").toExternalForm());
+        Image icon = new Image(InterpalsBoosterApplication.class.getResourceAsStream("logo.png"));
         stage.getIcons().add(icon);
 
         stage.setScene(loginScene);

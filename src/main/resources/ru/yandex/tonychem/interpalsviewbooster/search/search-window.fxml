@@ -15,6 +15,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
@@ -23,11 +24,20 @@
    <children>
       <MenuBar fx:id="mainWindowMenuBar" layoutY="2.0" nodeOrientation="LEFT_TO_RIGHT" opacity="0.8" prefHeight="26.0" prefWidth="887.0">
         <menus>
-          <Menu fx:id="fileMenuMainWindow" mnemonicParsing="false" text="File">
+          <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
             <items>
-              <MenuItem fx:id="exitButtonMainMenu" mnemonicParsing="false" text="Exit" />
+                  <MenuItem fx:id="clearCacheMenuItem" mnemonicParsing="false" onAction="#clearCache" text="Clear cache" />
+              <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#exit" text="Exit">
+                     <accelerator>
+                        <KeyCodeCombination alt="DOWN" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
             </items>
           </Menu>
+            <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#aboutMenu" text="About" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
       <AnchorPane fx:id="queryPane" layoutY="28.0" prefHeight="290.0" prefWidth="416.0">

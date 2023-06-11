@@ -27,7 +27,7 @@ public class ConsoleUpdateTask extends Task<Void> {
             if (message != null) {
 
                 if (message instanceof String s) {
-                    if (s.equals(AppUtils.CONSOLE_POISON_PILL)) {
+                    if (s.equals(AppUtils.QUEUE_POISON_PILL)) {
                         break;
                     }
 
