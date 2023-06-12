@@ -7,12 +7,15 @@ This application uses primitive script indeed that send continuous http requests
 
 Usage
 ============
-1. Make sure you have Java SE 20 (or higher) and JavaFX 20 installed.
-2. Download recent version of compiled project [here](https://disk.yandex.ru/d/fiecQFyI7yB16w). 
-3. If you are a Windows user, run *start.bat* file in order to open the application. Otherwise, run the following command in your Terminal under the app directory:
+1. Make sure you have Java SE 20 (or higher) installed and classpath is set correctly. Download JavaFX 20 and set path to its lib folder: 
 ```bash
-    export JavaFX=<path to folder with javafx>/lib
+    #windows
+    SETX JavaFX "<path to JavaFX SDK>/lib"
+    #ubuntu
+    export JavaFX=<path to JavaFX SDK>/lib
 ```
+3. Download recent version of compiled project [here](https://disk.yandex.ru/d/fiecQFyI7yB16w). 
+4. Run the following command in your Terminal under the app directory:
 ```bash
     java -jar --module-path $JavaFX --add-modules javafx.controls,javafx.fxml interpalsviewbooster.jar
 ```
