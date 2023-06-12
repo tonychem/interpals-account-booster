@@ -97,7 +97,10 @@ public class SearchController implements Initializable {
     }
 
 
+    //Main method of the application. Method initiates search&scraping
     public void initiateSearch(ActionEvent event) {
+        //New ExecutorService is instantiated every time the method is called
+        //To sync three working threads: the search&scrape thread, console-updater thread and progress-bar-updater thread
         executorService.shutdownNow();
         executorService = Executors.newCachedThreadPool();
 
