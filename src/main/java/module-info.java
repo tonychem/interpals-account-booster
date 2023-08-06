@@ -16,6 +16,7 @@ module ru.yandex.tonychem.interpalsviewbooster {
 
     exports ru.yandex.tonychem.interpalsviewbooster.about;
     opens ru.yandex.tonychem.interpalsviewbooster.about to javafx.fxml;
-    exports ru.yandex.tonychem.interpalsviewbooster.search.task;
-    opens ru.yandex.tonychem.interpalsviewbooster.search.task to javafx.fxml;
+
+    exports ru.yandex.tonychem.interpalsviewbooster.task;
+    opens ru.yandex.tonychem.interpalsviewbooster.task to javafx.fxml;
 }

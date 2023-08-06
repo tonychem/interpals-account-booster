@@ -8,15 +8,15 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public interface CrawlEngine {
     String cookies();
 
     void authorize(String username, String password) throws IncorrectCredentialsException, IOException;
 
-    Set<Account> gatherAccounts(UserSearchQuery userSearchQuery, AtomicReference<Double> progressCallBack);
+    Set<Account> gatherAccounts(UserSearchQuery userSearchQuery);
 
     void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery, CacheManager cacheManager,
-               AtomicReference<Double> progressCallBack, ConcurrentLinkedQueue<Object> loggingQueue);
+               Consumer<Double> progressUpdater, ConcurrentLinkedQueue<Object> loggingQueue);
 }

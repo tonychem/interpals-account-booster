@@ -1,40 +1,42 @@
-package ru.yandex.tonychem.interpalsviewbooster.engine;
+package ru.yandex.tonychem.interpalsviewbooster.task;
 
 import javafx.concurrent.Task;
+import ru.yandex.tonychem.interpalsviewbooster.engine.CacheManager;
+import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class ScrapeAndVisitTask extends Task<Void> {
 
     private final CrawlEngine engine;
     private final UserSearchQuery userSearchQuery;
-    private final AtomicReference<Double> visitedAccountsProgress;
-
     private final CacheManager cacheManager;
-
 
     private volatile ConcurrentLinkedQueue<Object> loggingQueue;
 
     public ScrapeAndVisitTask(CrawlEngine engine, UserSearchQuery userSearchQuery,
                               CacheManager cacheManager,
-                              AtomicReference<Double> visitedAccountsProgress,
                               ConcurrentLinkedQueue<Object> loggingQueue) {
         this.engine = engine;
         this.userSearchQuery = userSearchQuery;
         this.cacheManager = cacheManager;
-        this.visitedAccountsProgress = visitedAccountsProgress;
         this.loggingQueue = loggingQueue;
     }
 
     @Override
     protected Void call() throws Exception {
-        Thread.currentThread().setName("Worker-page-visitor");
-        Set<Account> accounts = engine.gatherAccounts(userSearchQuery, null);
-        engine.crawl(accounts, userSearchQuery, cacheManager, visitedAccountsProgress, loggingQueue);
+        Thread.currentThread().setName("Page-scrape-and-visitor");
+
+        Consumer<Double> updateProgress = (progress) -> {
+            updateProgress(progress, 1.0);
+        };
+
+        Set<Account> accounts = engine.gatherAccounts(userSearchQuery);
+        engine.crawl(accounts, userSearchQuery, cacheManager, updateProgress, loggingQueue);
         return null;
     }
 }

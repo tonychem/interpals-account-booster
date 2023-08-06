@@ -1,15 +1,13 @@
 package ru.yandex.tonychem.interpalsviewbooster.beans;
 
-import ru.yandex.tonychem.interpalsviewbooster.engine.impl.BasicCrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CacheManager;
 import ru.yandex.tonychem.interpalsviewbooster.engine.CrawlEngine;
+import ru.yandex.tonychem.interpalsviewbooster.engine.impl.BasicCrawlEngine;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class BeansHolder {
 

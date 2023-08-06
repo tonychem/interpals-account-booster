@@ -1,4 +1,4 @@
-package ru.yandex.tonychem.interpalsviewbooster.search.task;
+package ru.yandex.tonychem.interpalsviewbooster.task;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
@@ -17,10 +17,10 @@ public class ConsoleUpdateTask extends Task<Void> {
     }
 
     @Override
-    protected Void call() throws Exception {
+    public Void call() throws Exception {
         Thread.currentThread().setName("Worker-console-updater");
 
-        while (true) {
+        while (!isCancelled()) {
             Object message = logQueue.poll();
             if (message != null) {
 

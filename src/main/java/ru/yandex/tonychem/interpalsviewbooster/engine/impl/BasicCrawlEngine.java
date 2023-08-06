@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,7 +82,7 @@ public class BasicCrawlEngine implements CrawlEngine {
     }
 
     @Override
-    public Set<Account> gatherAccounts(UserSearchQuery userSearchQuery, AtomicReference<Double> progressCallBack) {
+    public Set<Account> gatherAccounts(UserSearchQuery userSearchQuery) {
         String baseSearchUrl = prepareBaseSearchUrl(userSearchQuery);
         Set<Account> accounts = new HashSet<>(100);
 
@@ -119,7 +119,7 @@ public class BasicCrawlEngine implements CrawlEngine {
 
     @Override
     public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery, CacheManager cacheManager,
-                      AtomicReference<Double> progressCallBack, ConcurrentLinkedQueue<Object> loggingQueue) {
+                      Consumer<Double> progressCallback, ConcurrentLinkedQueue<Object> loggingQueue) {
         if (!userSearchQuery.visitPreviouslyViewedAccounts()) {
             Set<Account> previouslyViewedAccounts = cacheManager.getSeen();
             if (previouslyViewedAccounts != null) {
@@ -132,7 +132,7 @@ public class BasicCrawlEngine implements CrawlEngine {
         if (totalSize == 0) {
             loggingQueue.offer("No users satisfy the request");
             loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
-            progressCallBack.set(1.0d);
+            progressCallback.accept(1.0d);
             return;
         }
 
@@ -158,7 +158,7 @@ public class BasicCrawlEngine implements CrawlEngine {
                 }
 
                 actuallyVisited++;
-                progressCallBack.set(actuallyVisited / totalSize);
+                progressCallback.accept(actuallyVisited / totalSize);
 
                 cacheManager.markSeen(account);
                 loggingQueue.offer(account);
