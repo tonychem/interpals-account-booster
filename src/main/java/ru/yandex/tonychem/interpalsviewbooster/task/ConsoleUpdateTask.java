@@ -5,13 +5,13 @@ import javafx.scene.control.TextArea;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConsoleUpdateTask extends Task<Void> {
     private final TextArea textArea;
-    private volatile ConcurrentLinkedQueue<Object> logQueue;
+    private volatile LinkedBlockingQueue<Object> logQueue;
 
-    public ConsoleUpdateTask(TextArea textArea, ConcurrentLinkedQueue<Object> logQueue) {
+    public ConsoleUpdateTask(TextArea textArea, LinkedBlockingQueue<Object> logQueue) {
         this.textArea = textArea;
         this.logQueue = logQueue;
     }
@@ -21,22 +21,20 @@ public class ConsoleUpdateTask extends Task<Void> {
         Thread.currentThread().setName("Worker-console-updater");
 
         while (!isCancelled()) {
-            Object message = logQueue.poll();
-            if (message != null) {
+            Object message = logQueue.take();
 
-                if (message instanceof String s) {
-                    if (s.equals(AppUtils.QUEUE_POISON_PILL)) {
-                        break;
-                    }
-
-                    if (s.contains(AppUtils.DENIAL_CLIENT_RESPONSE)) {
-                        textArea.appendText(AppUtils.DENIAL_CLIENT_RESPONSE + "\n");
-                    } else {
-                        textArea.appendText(s + "\n");
-                    }
-                } else if (message instanceof Account account) {
-                    textArea.appendText("Successfully visited " + account.username() + "\n");
+            if (message instanceof String s) {
+                if (s.equals(AppUtils.QUEUE_POISON_PILL)) {
+                    break;
                 }
+
+                if (s.contains(AppUtils.DENIAL_CLIENT_RESPONSE)) {
+                    textArea.appendText(AppUtils.DENIAL_CLIENT_RESPONSE + "\n");
+                } else {
+                    textArea.appendText(s + "\n");
+                }
+            } else if (message instanceof Account account) {
+                textArea.appendText("Successfully visited " + account.username() + "\n");
             }
         }
 

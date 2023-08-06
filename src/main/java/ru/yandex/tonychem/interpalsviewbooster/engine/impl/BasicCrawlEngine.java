@@ -17,7 +17,7 @@ import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,14 +112,15 @@ public class BasicCrawlEngine implements CrawlEngine {
             accounts.addAll(accountsFoundOnSearchPage);
             offset += 10;
 
-        } while (accountsFoundOnSearchPage.size() != 0);
+        } while (!accountsFoundOnSearchPage.isEmpty() || Thread.currentThread().isInterrupted());
 
         return accounts;
     }
 
     @Override
     public void crawl(Collection<Account> accounts, UserSearchQuery userSearchQuery, CacheManager cacheManager,
-                      Consumer<Double> progressCallback, ConcurrentLinkedQueue<Object> loggingQueue) {
+                      Consumer<Double> progressCallback, LinkedBlockingQueue<Object> loggingQueue)
+            throws InterruptedException {
         if (!userSearchQuery.visitPreviouslyViewedAccounts()) {
             Set<Account> previouslyViewedAccounts = cacheManager.getSeen();
             if (previouslyViewedAccounts != null) {
@@ -130,8 +131,8 @@ public class BasicCrawlEngine implements CrawlEngine {
         int totalSize = accounts.size();
 
         if (totalSize == 0) {
-            loggingQueue.offer("No users satisfy the request");
-            loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
+            loggingQueue.put("No users satisfy the request");
+            loggingQueue.put(AppUtils.QUEUE_POISON_PILL);
             progressCallback.accept(1.0d);
             return;
         }
@@ -139,6 +140,10 @@ public class BasicCrawlEngine implements CrawlEngine {
         double actuallyVisited = 0.0d;
 
         for (Account account : accounts) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
             HttpRequest userVisitRequest = HttpRequest.newBuilder()
                     .uri(ResourceLocators.MAIN.uri().resolve(account.username()))
                     .header("user-agent", userAgentFactory.getAgent())
@@ -161,16 +166,16 @@ public class BasicCrawlEngine implements CrawlEngine {
                 progressCallback.accept(actuallyVisited / totalSize);
 
                 cacheManager.markSeen(account);
-                loggingQueue.offer(account);
+                loggingQueue.put(account);
 
             } catch (IOException | InterruptedException e) {
                 cacheManager.flush();
-                loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
+                loggingQueue.put(AppUtils.QUEUE_POISON_PILL);
                 throw new RuntimeException(e);
             }
         }
         cacheManager.flush();
-        loggingQueue.offer(AppUtils.QUEUE_POISON_PILL);
+        loggingQueue.put(AppUtils.QUEUE_POISON_PILL);
     }
 
     @Override

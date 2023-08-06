@@ -8,11 +8,15 @@ import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BeansHolder {
 
     private static final Map<String, Set<Account>> visitedAccountsMap = AppUtils.loadVisitedAccounts();
     private static final CrawlEngine ENGINE = new BasicCrawlEngine();
+
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
     public static CacheManager sessionCacheManager = null;
 

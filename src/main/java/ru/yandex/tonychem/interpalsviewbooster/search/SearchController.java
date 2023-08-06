@@ -26,23 +26,22 @@ import ru.yandex.tonychem.interpalsviewbooster.util.AppUtils;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.IntStream;
 
 public class SearchController implements Initializable {
 
     private CrawlEngine engine = BeansHolder.engine();
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private ExecutorService executorService = BeansHolder.EXECUTOR_SERVICE;
 
-    private ConcurrentLinkedQueue<Object> consoleLoggingQueue = new ConcurrentLinkedQueue<>();
+    private LinkedBlockingQueue<Object> consoleLoggingQueue = new LinkedBlockingQueue<>();
 
     private CacheManager cacheManager = BeansHolder.sessionCacheManager;
 
     private Task<Void> scrapeAndVisitTask, consoleUpdateTask;
 
-    private EventHandler<WorkerStateEvent> doneScrapeAndVisitTaskHandler;
+    private EventHandler<WorkerStateEvent> doneOrCanceledScrapeAndVisitEvent;
 
     @FXML
     private ComboBox<Integer> ageFromChoiceBox, ageToChoiceBox;
@@ -95,8 +94,7 @@ public class SearchController implements Initializable {
         ageToChoiceBox.getSelectionModel().selectLast();
         countryChoiceBox.getSelectionModel().selectFirst();
 
-        // Herein handlers change UI when corresponding Tasks are done, but won't change the program state
-        doneScrapeAndVisitTaskHandler = (stateEvent) -> {
+        doneOrCanceledScrapeAndVisitEvent = (stateEvent) -> {
             queryPane.setOpacity(1.0d);
             queryPane.setCursor(Cursor.DEFAULT);
             cancelBoostButton.setVisible(false);
@@ -105,38 +103,24 @@ public class SearchController implements Initializable {
             scrapeIndicator.setVisible(false);
         };
     }
-    
+
     //Main method of the application. Method initiates search&scraping
     public void initiateSearch(ActionEvent event) {
-        //New ExecutorService is instantiated every time the method is called
-        //To sync three working threads: the search&scrape thread, console-updater thread and progress-bar-updater thread
-        executorService.shutdownNow();
-        executorService = Executors.newCachedThreadPool();
-
         UserSearchQuery userSearchQuery = readUIFields();
 
         setPaneToWaitingState();
 
+        consoleLoggingQueue.clear();
+
         scrapeAndVisitTask = new ScrapeAndVisitTask(engine, userSearchQuery, cacheManager, consoleLoggingQueue);
         consoleUpdateTask = new ConsoleUpdateTask(consoleArea, consoleLoggingQueue);
 
-        EventHandler<WorkerStateEvent> canceledScrapeAndVisitTaskHandler = (stateEvent) -> {
-            queryPane.setOpacity(1.0d);
-            queryPane.setCursor(Cursor.DEFAULT);
-            cancelBoostButton.setVisible(false);
-            initiateBoostButton.setVisible(true);
-            crawlProfilesLabel.setVisible(false);
-            scrapeIndicator.setVisible(false);
-            cacheManager.flush();
-        };
-
-        scrapeAndVisitTask.setOnSucceeded(doneScrapeAndVisitTaskHandler);
-        scrapeAndVisitTask.setOnCancelled(canceledScrapeAndVisitTaskHandler);
+        scrapeAndVisitTask.setOnSucceeded(doneOrCanceledScrapeAndVisitEvent);
+        scrapeAndVisitTask.setOnCancelled(doneOrCanceledScrapeAndVisitEvent);
         scrapeIndicator.progressProperty().bind(scrapeAndVisitTask.progressProperty());
 
         executorService.submit(consoleUpdateTask);
         executorService.submit(scrapeAndVisitTask);
-        executorService.shutdown();
     }
 
     public void terminateSearch(ActionEvent actionEvent) {
@@ -148,9 +132,7 @@ public class SearchController implements Initializable {
             consoleUpdateTask.cancel(true);
         }
 
-        if (!executorService.isTerminated()) {
-            executorService.shutdownNow();
-        }
+        cacheManager.flush();
     }
 
     private void setPaneToWaitingState() {

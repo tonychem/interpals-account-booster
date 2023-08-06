@@ -7,7 +7,7 @@ import ru.yandex.tonychem.interpalsviewbooster.engine.model.Account;
 import ru.yandex.tonychem.interpalsviewbooster.engine.model.UserSearchQuery;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 public class ScrapeAndVisitTask extends Task<Void> {
@@ -16,11 +16,11 @@ public class ScrapeAndVisitTask extends Task<Void> {
     private final UserSearchQuery userSearchQuery;
     private final CacheManager cacheManager;
 
-    private volatile ConcurrentLinkedQueue<Object> loggingQueue;
+    private volatile LinkedBlockingQueue<Object> loggingQueue;
 
     public ScrapeAndVisitTask(CrawlEngine engine, UserSearchQuery userSearchQuery,
                               CacheManager cacheManager,
-                              ConcurrentLinkedQueue<Object> loggingQueue) {
+                              LinkedBlockingQueue<Object> loggingQueue) {
         this.engine = engine;
         this.userSearchQuery = userSearchQuery;
         this.cacheManager = cacheManager;
@@ -29,7 +29,7 @@ public class ScrapeAndVisitTask extends Task<Void> {
 
     @Override
     protected Void call() throws Exception {
-        Thread.currentThread().setName("Page-scrape-and-visitor");
+        Thread.currentThread().setName("Worker-scraper-and-visitor");
 
         Consumer<Double> updateProgress = (progress) -> {
             updateProgress(progress, 1.0);
