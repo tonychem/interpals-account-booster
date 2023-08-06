@@ -101,6 +101,7 @@ public class SearchController implements Initializable {
             initiateBoostButton.setVisible(true);
             crawlProfilesLabel.setVisible(false);
             scrapeIndicator.setVisible(false);
+            queryPane.setDisable(false);
         };
     }
 
@@ -138,6 +139,7 @@ public class SearchController implements Initializable {
     private void setPaneToWaitingState() {
         queryPane.setOpacity(0.23d);
         queryPane.setCursor(Cursor.WAIT);
+        queryPane.setDisable(true);
         initiateBoostButton.setVisible(false);
 
         cancelBoostButton.setVisible(true);
