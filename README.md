@@ -21,7 +21,7 @@ This application uses primitive script indeed that send continuous http requests
 ```
 4. Follow the GUI.
 
-*Windows users can download these [files](https://disk.yandex.ru/d/DFQmIA8FIBCREQ) and simply start executable InterpalsViewBooster.exe*
+*Windows users can download these [files](https://disk.yandex.ru/d/DFQmIA8FIBCREQ) and simply start executable InterpalsViewBooster.exe (JAVA SE 20 or higher required)*
 
 
 
