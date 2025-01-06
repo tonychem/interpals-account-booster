@@ -226,7 +226,7 @@ public class BasicCrawlEngine implements CrawlEngine {
     }
 
     private Set<Account> extractAccountNames(HttpResponse<String> searchResultResponse) {
-        final String usernamePattern = "<a class=\"sResThumb\" href=\"/(.+?)\\?";
+        final String usernamePattern = "<a class=\"sResThumb\"\\s+href=\"/(.+?)\\?";
 
         Set<Account> matches = new HashSet<>();
         Pattern p = Pattern.compile(usernamePattern);

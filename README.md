@@ -14,15 +14,12 @@ This application uses primitive script indeed that send continuous http requests
     #ubuntu
     export JavaFX=<path to JavaFX SDK>/lib
 ```
-3. Download jar archive [here](https://disk.yandex.ru/d/fiecQFyI7yB16w) or compile this project on your machine. 
+3. Compile this project on your machine. 
 4. Run the following command in your Terminal under the app directory:
 ```bash
     java -jar --module-path $JavaFX --add-modules javafx.controls,javafx.fxml interpalsviewbooster.jar
 ```
 4. Follow the GUI.
-
-*Windows users can download these [files](https://disk.yandex.ru/d/DFQmIA8FIBCREQ) and simply start executable InterpalsViewBooster.exe (JAVA SE 20 or higher required)*
-
 
 
 
